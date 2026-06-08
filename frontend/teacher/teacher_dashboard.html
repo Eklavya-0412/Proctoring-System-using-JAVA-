@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Proctoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #ffffff; --text: #000000; --border: #e0e0e0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+        .dashboard-container { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
+        
+        .dashboard-header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--text); padding-bottom: 15px; margin-bottom: 30px; }
+        .dashboard-header h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        
+        button { padding: 12px 20px; background-color: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s ease; }
+        button:hover { background-color: var(--bg); color: var(--text); }
+        
+        #logout-btn { background-color: transparent; color: #dc2626; border-color: #dc2626; }
+        #logout-btn:hover { background-color: #dc2626; color: var(--bg); }
+        
+        .controls { display: flex; align-items: center; gap: 15px; margin-bottom: 40px; padding: 25px; border: 1px solid var(--border); background: #fafafa; }
+        .controls label { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        select { flex: 1; max-width: 400px; padding: 12px; border: 1px solid var(--border); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 14px; background: var(--bg); outline: none; cursor: pointer; }
+        select:focus { border-color: var(--text); }
+        
+        h3 { font-size: 18px; font-weight: 600; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .privacy-note { font-size: 13px; color: #666; margin-bottom: 20px; padding-left: 10px; border-left: 2px solid var(--border); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; border: 1px solid var(--border); }
+        th, td { border: 1px solid var(--border); padding: 16px; text-align: left; vertical-align: top; }
+        th { background-color: #f5f5f5; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #444; font-weight: 600; }
+        td { font-size: 14px; line-height: 1.5; }
+        
+        #save-grades-btn { margin-top: 30px; float: right; padding: 16px 32px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <div class="dashboard-header">
+            <h2>Grading Matrix</h2>
+            <button id="logout-btn">Sign Out</button>
+        </div>
+
+        <div class="controls">
+            <label for="exam-select">Filter by Exam:</label>
+            <select id="exam-select">
+                <option value="">-- Select Target Assessment --</option>
+                <option value="1">Computer Science Midterm</option> 
+            </select>
+            <button id="load-answers-btn">Retrieve Submissions</button>
+        </div>
+
+        <div id="grading-section" style="display: none;">
+            <h3>Evaluation Queue</h3>
+            <div class="privacy-note">Blind grading active. Candidate identifiers are obfuscated.</div>
+            
+            <table id="answers-table">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">Candidate Ref</th>
+                        <th style="width: 38%;">Prompt</th>
+                        <th style="width: 38%;">Response</th>
+                        <th style="width: 12%;">Points</th>
+                    </tr>
+                </thead>
+                <tbody id="answers-tbody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #666; font-style: italic;">Awaiting data payload...</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <button id="save-grades-btn">Commit Evaluations</button>
+        </div>
+
+    </div>
+
+    <script src="teacher.js"></script>
+    <script src="../shared/js/auth.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Proctoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #ffffff; --text: #000000; --border: #e0e0e0; --accent: #000000; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+        .admin-container { max-width: 900px; margin: 60px auto; padding: 0 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 20px; margin-bottom: 40px; }
+        header h2 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .section-card { border: 1px solid var(--border); padding: 40px; margin-bottom: 30px; background: var(--bg); transition: border-color 0.3s; }
+        .section-card:hover { border-color: var(--text); }
+        h3 { margin-top: 0; font-size: 18px; font-weight: 600; margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .form-group { margin-bottom: 24px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; }
+        .form-group input, .form-group textarea { width: 100%; padding: 14px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; resize: vertical; }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
+        button { padding: 14px 24px; background-color: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s ease; }
+        button:hover { background-color: var(--bg); color: var(--text); }
+        #logout-btn { background-color: transparent; color: #dc2626; border-color: #dc2626; }
+        #logout-btn:hover { background-color: #dc2626; color: var(--bg); }
+        #finish-exam-btn { background-color: transparent; color: var(--text); margin-left: 10px; }
+        #finish-exam-btn:hover { background-color: #f5f5f5; }
+        .meta-info { font-size: 14px; color: #666; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border-left: 4px solid var(--text); }
+        .meta-info strong { color: var(--text); }
+        ul#questions-list { padding-left: 20px; margin-top: 20px; }
+        ul#questions-list li { margin-bottom: 15px; font-size: 15px; line-height: 1.6; padding-bottom: 15px; border-bottom: 1px dashed var(--border); }
+        ul#questions-list li:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <header>
+            <h2>Exam Management</h2>
+            <button id="logout-btn">Sign Out</button>
+        </header>
+
+        <div class="section-card" id="create-exam-section">
+            <h3>Step 1: Define Exam</h3>
+            <form id="create-exam-form">
+                <div class="form-group">
+                    <label for="exam-title">Exam Title</label>
+                    <input type="text" id="exam-title" placeholder="e.g., Computer Science Midterm" required autocomplete="off">
+                </div>
+                <button type="button" id="create-exam-btn">Initialize Exam</button>
+            </form>
+        </div>
+
+        <div class="section-card" id="add-questions-section" style="display: none;">
+            <h3>Step 2: Construct Questionnaire</h3>
+            <div class="meta-info">
+                Targeting: <strong id="current-exam-title-display"></strong> 
+                <span style="float:right;">ID: <span id="current-exam-id-display"></span></span>
+            </div>
+
+            <form id="add-question-form">
+                <div class="form-group">
+                    <label for="question-text">Question Formulation</label>
+                    <textarea id="question-text" rows="5" placeholder="Enter the prompt here..." required></textarea>
+                </div>
+                <button type="submit">Append Question</button>
+                <button type="button" id="finish-exam-btn">Publish Paper</button>
+            </form>
+
+            <div style="margin-top: 40px;">
+                <h4 style="font-size: 14px; text-transform: uppercase; color: #666; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                    Committed Questions (<span id="question-count">0</span>)
+                </h4>
+                <ul id="questions-list"></ul>
+            </div>
+        </div>
+    </div>
+    <script src="admin.js"></script>
+    <script src="../shared/js/auth.js"></script>
+</body>
+</html>

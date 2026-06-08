@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Exam - Proctoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../shared/css/styles.css">
+    <style>
+        :root { --bg: #ffffff; --text: #000000; --border: #e0e0e0; --accent: #000000; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+        /* Pre-exam Screen */
+        #pre-exam-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 20px; }
+        #pre-exam-screen h2 { font-size: 32px; letter-spacing: -1px; margin-bottom: 15px; }
+        #pre-exam-screen p { font-size: 16px; color: #555; max-width: 500px; line-height: 1.6; margin-bottom: 40px; }
+
+        /* Buttons */
+        button { padding: 16px 32px; background-color: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: all 0.2s ease; }
+        button:hover { background-color: var(--bg); color: var(--text); }
+        button:disabled { opacity: 0.35; cursor: not-allowed; background-color: var(--text); color: var(--bg); }
+
+        /* Active Exam UI */
+        header { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px 40px; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 10; }
+        header h2 { margin: 0; font-size: 20px; font-weight: 700; }
+
+        /* Violation counter badge in header */
+        .violation-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #dc2626; margin-top: 8px; }
+        .violation-badge__dots { display: flex; gap: 4px; }
+        .violation-badge__dot { width: 10px; height: 10px; border-radius: 50%; background: #e0e0e0; transition: background 0.3s ease; }
+        .violation-badge__dot.active { background: #dc2626; }
+
+        .proctor-feed { border: 1px solid var(--text); padding: 5px; background: var(--bg); text-align: right; }
+        .proctor-status { font-size: 11px; text-transform: uppercase; font-weight: 700; color: #dc2626; margin-bottom: 5px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; letter-spacing: 1px; }
+        .proctor-status::before { content: ''; display: block; width: 8px; height: 8px; background-color: #dc2626; border-radius: 50%; animation: pulse 1.5s infinite; }
+
+        #proctor-video { width: 160px; height: 120px; background-color: #111; border-radius: 0; object-fit: cover; display: block; }
+
+        main { padding: 40px 20px; max-width: 800px; margin: 0 auto; }
+        .question-container { margin-bottom: 40px; border-left: 2px solid var(--text); padding-left: 20px; }
+        .question-container p { font-size: 16px; line-height: 1.6; margin-top: 0; font-weight: 500; }
+        textarea { width: 100%; padding: 16px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 0; font-family: 'Inter', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; resize: vertical; line-height: 1.5; }
+        textarea:focus { border-color: var(--text); }
+        textarea:disabled { background: #f5f5f5; color: #999; cursor: not-allowed; }
+
+        #submit-exam-btn { width: 100%; margin-top: 20px; background-color: var(--text); border-color: var(--text); }
+
+        /* Suspended state: dim the exam content behind the overlay */
+        body.exam-suspended #active-exam-screen { filter: blur(2px); pointer-events: none; user-select: none; }
+
+        @keyframes pulse {
+            0%   { opacity: 1; }
+            50%  { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Pre-exam Screen ──────────────────────────────────────── -->
+    <div id="pre-exam-screen">
+        <h2>Assessment Environment</h2>
+        <p>This session requires stringent proctoring. By proceeding, you authorize the use of your camera and microphone, and agree to maintain continuous full-screen focus.</p>
+        <button id="start-exam-btn">Initialize Secure Session</button>
+    </div>
+
+    <!-- ── Active Exam Screen ───────────────────────────────────── -->
+    <div id="active-exam-screen" style="display: none;">
+        <header>
+            <div>
+                <h2>Computer Science Midterm</h2>
+                <!-- Live violation counter — updated by updateViolationBadge() -->
+                <div class="violation-badge" id="violation-badge" style="display:none;">
+                    <span>Violations</span>
+                    <div class="violation-badge__dots">
+                        <div class="violation-badge__dot" id="vdot-1"></div>
+                        <div class="violation-badge__dot" id="vdot-2"></div>
+                        <div class="violation-badge__dot" id="vdot-3"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="proctor-feed">
+                <div class="proctor-status">Recording</div>
+                <video id="proctor-video" autoplay muted playsinline></video>
+            </div>
+        </header>
+
+        <main>
+            <form id="exam-form">
+                <div class="question-container">
+                    <p><strong>01.</strong> What is the time complexity of binary search?</p>
+                    <textarea name="q1_answer" rows="5" placeholder="Formulate your response..."></textarea>
+                </div>
+
+                <div class="question-container">
+                    <p><strong>02.</strong> Explain the difference between an interface and an abstract class in Java.</p>
+                    <textarea name="q2_answer" rows="5" placeholder="Formulate your response..."></textarea>
+                </div>
+
+                <button type="submit" id="submit-exam-btn">Finalize &amp; Submit Examination</button>
+            </form>
+        </main>
+    </div>
+
+    <!-- ── Scripts ──────────────────────────────────────────────── -->
+    <script src="../shared/js/proctor.js"></script>
+    <script src="student.js"></script>
+    <script>
+        // ── Violation badge (header dots) ──────────────────────────
+        // Called from the page after each violation to keep the badge in sync.
+        // Hooks into proctor.js state non-invasively via a polling observer.
+        function updateViolationBadge(count) {
+            const badge = document.getElementById('violation-badge');
+            if (!badge) return;
+
+            // Show badge as soon as there's at least one violation
+            badge.style.display = count > 0 ? 'inline-flex' : 'none';
+
+            // Calculate active dots based on the current suspension tier
+            let activeDots = count % 3;
+            if (activeDots === 0 && count > 0) activeDots = 3;
+
+            for (let i = 1; i <= 3; i++) {
+                const dot = document.getElementById('vdot-' + i);
+                if (dot) dot.classList.toggle('active', i <= activeDots);
+            }
+        }
+
+        // Poll proctor state every second to keep badge synced.
+        // This is intentionally decoupled — proctor.js owns the state.
+        setInterval(() => {
+            if (typeof state !== 'undefined') {
+                updateViolationBadge(state.violationCount);
+            }
+        }, 1000);
+
+        // ── Body class mirrors suspension state for blur effect ────
+        setInterval(() => {
+            if (typeof state !== 'undefined') {
+                document.body.classList.toggle('exam-suspended', !!state.isSuspended);
+            }
+        }, 300);
+
+        // ── Start exam ─────────────────────────────────────────────
+        document.getElementById('start-exam-btn').addEventListener('click', async () => {
+            try {
+                await startProctoring();
+            } catch (err) {
+                console.error('Could not start exam. Permissions likely denied.', err);
+                return; // Don't proceed if camera/mic access denied
+            }
+
+            // Show the exam screen (proctoring started successfully)
+            document.getElementById('pre-exam-screen').style.display = 'none';
+            document.getElementById('active-exam-screen').style.display = 'block';
+
+            // Try to load real questions from the database.
+            // If it fails or returns empty, the hardcoded questions remain visible
+            // (they have data-question-id attributes matching the seeded DB data).
+            const examId = 1; // In production, pull from URL params or sessionStorage
+            await loadExamQuestions(examId);
+        });
+
+        // ── Submit exam is handled by student.js ─────────────────────
+        // student.js's submitExam() saves answers to the API, stops
+        // proctoring, exits fullscreen, and redirects — all in order.
+    </script>
+</body>
+</html>
